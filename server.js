@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import imageRoute from "./routes/image.js";
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js"
+import cartRoute from "./routes/cart.js"
 
 
 const app = express();
@@ -32,6 +33,7 @@ app.use(express.json({limit : "3mb"}))
 app.use("/api/v1/all",imageRoute)
 app.use("/api/v1/user",userRoute)
 app.use("/api/v1/product",productRoute)
+app.use("/api/v1/cart", cartRoute);
 
 
 app.listen(port,()=>{
