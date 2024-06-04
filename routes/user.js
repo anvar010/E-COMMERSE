@@ -9,6 +9,6 @@ router.post("/get-user", protect, userControllers.authController);
 
 router.post("/login", userControllers.loginController);
 router.put("/update", protect, userControllers.updateUserProfile); 
- router.get("/types", userControllers.getTypes); 
+ router.get("/types", userControllers.getDropdownOptions); 
 
 export default router;

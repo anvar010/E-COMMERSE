@@ -240,28 +240,34 @@ return res.status(200).send({
     }
 }
 
-// const getUserTypes = async (req, res) => {
-//     try {
-//       const type = await type.find();
-//       res.json(type);
-//     } catch (error) {
-//       console.log(error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//     }
-//   };
+const getDropdownOptions = async (req, res) => {
+    try {
+        const options = ["buyer", "seller"];
 
-function getTypes() {
-    const types = [
-      { id: 1, name: 'Buyer' },
-      { id: 2, name: 'Seller' },
-    ];
-    return types;
-  }
+        // console.log("Dropdown Options:", options);
+
+        return res.status(200).json({
+            options: options,
+            success: true,
+        });
+    } catch (error) {
+        console.error("Error fetching dropdown options:", error);
+        return res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+
+
+
+
   
 
 export default { registerController,
      authController ,
       loginController,
     updateUserProfile,
-    getTypes
+    getDropdownOptions
      };
