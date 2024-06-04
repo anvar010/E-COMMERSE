@@ -19,7 +19,6 @@ export const addItemToCart = async (req, res) => {
       const productId = req.body.productId;
       const quantity = req.body.quantity || 1;
   
-      // Validate productId and quantity
       if (!productId || isNaN(quantity) || quantity <= 0) {
         return res.status(400).json({ error: 'Invalid productId or quantity' });
       }
@@ -154,6 +153,35 @@ export const decreaseCartItemQuantity = async (req, res) => {
         res.status(500).json({ error: 'Internal server error', success: false });
     }
 };
+
+export const increaseItemQuantity = async (req, res) => {
+  try {
+      const { userId, productId } = req.params;
+      console.log('User ID:', userId);
+      console.log('Product ID:', productId);
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ error: 'User not found', success: false });
+      }
+
+      const cartItem = user.cart.find(item => item.product.toString() === productId);
+      if (!cartItem) {
+          return res.status(404).json({ error: 'Product not found in cart', success: false });
+      }
+
+      
+      cartItem.quantity++;
+
+      await user.save();
+
+      res.status(200).json({ message: 'Cart item quantity increased', success: true });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error', success: false });
+  }
+};
+
 
 export const clearCart = async (req, res) => {
     try {

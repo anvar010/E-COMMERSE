@@ -240,8 +240,28 @@ return res.status(200).send({
     }
 }
 
+// const getUserTypes = async (req, res) => {
+//     try {
+//       const type = await type.find();
+//       res.json(type);
+//     } catch (error) {
+//       console.log(error);
+//       res.status(500).json({ message: 'Internal Server Error' });
+//     }
+//   };
+
+function getTypes() {
+    const types = [
+      { id: 1, name: 'Buyer' },
+      { id: 2, name: 'Seller' },
+    ];
+    return types;
+  }
+  
 
 export default { registerController,
      authController ,
       loginController,
-    updateUserProfile };
+    updateUserProfile,
+    getTypes
+     };

@@ -4,8 +4,10 @@ const createProduct = async (req, res) => {
     try {
         console.log(req.body);
         const { name, price, description, category, location, stock, productImage } = req.body;
+        const userId = req.userId;  
+       
 
-        // Check if productImage is provided
+        
         if (!productImage) {
             return res.status(400).json({
                 error: "Product image is required",
@@ -20,7 +22,8 @@ const createProduct = async (req, res) => {
             category,
             location,
             stock,
-            productImage
+            productImage,
+            userId
         });
 
         const saveProduct = await newProduct.save(); // Await the save operation
@@ -179,10 +182,89 @@ const getProductById = async (req,res) =>{
     }
 }
 
+const editProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, price, description, category, location, stock, productImage } = req.body;
+
+        if (!productImage) {
+            return res.status(400).json({
+                error: "Product image is required",
+                success: false
+            });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            {
+                name,
+                price,
+                description,
+                category,
+                location,
+                stock,
+                productImage
+            },
+            { new: true } 
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({
+                error: "Product not found",
+                success: false
+            });
+        }
+
+        res.status(200).json({
+            message: "Product successfully updated",
+            success: true,
+            data: {
+                product: updatedProduct
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+};
+
+
+const getProductsByUserId = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const productItems = await Product.find({ userId });
+
+        res.status(200).json({
+            message: "Products added by the user",
+            success: true,
+            data: {
+                products: productItems
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+}
+
+
+
+
+
+
 
 
 export default { createProduct,
      getAllProduct,getProductById ,
      getNewProducts,
      getProductsFromDistinctCategory,
-     getTopRating };
+     getTopRating,
+     editProduct,
+     getProductsByUserId };

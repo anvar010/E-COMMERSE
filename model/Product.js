@@ -18,7 +18,8 @@ const ReviewSchema = new mongoose.Schema({
     createdAt:{
         type:Date,
         default:Date.now
-    }
+    },
+    
 
 
 
@@ -54,6 +55,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 
 
 },{

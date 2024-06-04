@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 
 const protect = async (req, res, next) => {
+    
+    
+    
+    
     try {
         const authorizationHeader = req.headers["authorization"];
         if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
@@ -8,17 +12,18 @@ const protect = async (req, res, next) => {
         }
 
         const token = authorizationHeader.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decodedToken.id;
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 console.error("JWT verification error:", err);
                 return res.status(401).json({ message: "Unauthorized - Invalid token" });
             }
-            // Check if 'id' exists in decoded token
             if (!decoded || !decoded.id) {
                 console.error("Token does not contain 'id' field:", decoded);
                 return res.status(401).json({ message: "Unauthorized - Invalid token" });
             }
-            // Set 'userId' in request body
+           
             req.body.userId = decoded.id;
             next();
         });
