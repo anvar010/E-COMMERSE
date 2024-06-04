@@ -219,4 +219,28 @@ export const clearCart = async (req, res) => {
     }
   };
 
+  export const removeSingleProduct = async (req, res) => {
+    try {
+        const { userId, productId } = req.params;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.cart = user.cart.filter(item => item.product.toString() !== productId);
+
+        await user.save();
+
+        res.status(200).json({ message: 'Product removed from cart and database successfully' });
+    } catch (error) {
+        console.error('Error removing single product from cart and database:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
+
  

@@ -2,7 +2,7 @@
 
 import express from 'express';
 import protect from '../middleware/authMiddleware.js';
-import { addItemToCart, getUserCart, removeItemFromCart, clearCart,decreaseCartItemQuantity, increaseItemQuantity} from '../controller/cart.js';
+import { addItemToCart, getUserCart, removeItemFromCart, clearCart,decreaseCartItemQuantity, increaseItemQuantity,removeSingleProduct} from '../controller/cart.js';
 
 const router = express.Router();
 
@@ -13,5 +13,7 @@ router.delete('/decrease-quantity/:userId/:productId', protect, decreaseCartItem
 router.post('/increase-quantity/:userId/:productId', protect, increaseItemQuantity); 
 
 router.delete('/clear-cart', protect, clearCart);
+router.delete('/remove-single-product/:userId/:productId', removeSingleProduct);
+
 
 export default router;
