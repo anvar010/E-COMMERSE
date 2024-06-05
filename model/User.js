@@ -70,6 +70,11 @@ const UserSchema = new mongoose.Schema({
         quantity: { type: Number, default: 0 },
       },
     ],
+    wishlist: [
+      {
+          product: {  type: mongoose.Schema.Types.ObjectId, ref: 'Product' }
+      }
+  ],
     type: {
         type: String,
         required: true,

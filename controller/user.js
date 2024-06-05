@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../model/User.js";
+import Product from "../model/Product.js";
 
 const registerController = async (req,res) =>{
     try {
@@ -259,6 +260,161 @@ const getDropdownOptions = async (req, res) => {
     }
 };
 
+export const addToWishlist = async (req, res) => {
+    try {
+        const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized - No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: 'Unauthorized - Token invalid' });
+        }
+
+        const userId = decoded.id;
+        const productId = req.body.productId;
+
+        if (!productId) {
+            return res.status(400).json({ error: 'Invalid productId' });
+        }
+
+        const user = await User.findById(userId);
+        console.log('User:', user);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if the product exists
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Check if the product is already in the wishlist
+        const existingWishlistItem = user.wishlist.find(item => item.product.toString() === productId);
+
+        if (existingWishlistItem) {
+            return res.status(400).json({ error: 'Product already in wishlist' });
+        }
+
+        // Add the new item to the wishlist
+        user.wishlist.push({ product: productId });
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Product added to wishlist successfully',
+            success: true,
+            data: {
+                user,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+export const removeFromWishlist = async (req, res) => {
+    try {
+        const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized - No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: 'Unauthorized - Token invalid' });
+        }
+
+        const userId = decoded.id;
+        const productId = req.body.productId;
+
+        if (!productId) {
+            return res.status(400).json({ error: 'Invalid productId' });
+        }
+
+        const user = await User.findById(userId);
+        console.log('User:', user);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Filter out the product from the wishlist
+        user.wishlist = user.wishlist.filter(
+            (item) => item.product.toString() !== productId
+        );
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Product removed from wishlist successfully",
+            success: true,
+            wishlist: user.wishlist,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+export const getWishlist = async (req, res) => {
+    try {
+        const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized - No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: 'Unauthorized - Token invalid' });
+        }
+
+        const userId = decoded.id;
+
+        const user = await User.findById(userId).populate('wishlist.product');
+        console.log('User:', user);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: 'Wishlist retrieved successfully',
+            success: true,
+            data: {
+                wishlist: user.wishlist,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+
+
+
 
 
 
@@ -269,5 +425,8 @@ export default { registerController,
      authController ,
       loginController,
     updateUserProfile,
-    getDropdownOptions
+    getDropdownOptions,
+    addToWishlist,
+    removeFromWishlist,
+    getWishlist
      };

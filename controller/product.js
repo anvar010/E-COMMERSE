@@ -254,6 +254,8 @@ const getProductsByUserId = async (req, res) => {
     }
 }
 
+  
+
 
 
 
@@ -267,4 +269,4 @@ export default { createProduct,
      getProductsFromDistinctCategory,
      getTopRating,
      editProduct,
-     getProductsByUserId };
+     getProductsByUserId, };
