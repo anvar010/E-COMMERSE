@@ -7,10 +7,14 @@ const router = express.Router();
 router.post("/addproduct", protect, productControllers.createProduct);
 router.get("/getAllProduct", productControllers.getAllProduct);
 router.get("/getNewProducts", productControllers.getNewProducts);
-router.get("/specialProducts", productControllers.getProductsFromDistinctCategory);
+router.get("/specialProducts", productControllers.SpecialProducts);
 router.get("/getTopRated", productControllers.getTopRating);
 router.get("/getProduct/:id", productControllers.getProductById);
  router.put("/updateProduct/:id",protect,  productControllers.editProduct); 
 router.get("/userProducts/:id", protect, productControllers.getProductsByUserId); 
+router.post("/order", protect, productControllers.getProductsByUserId); 
+router.get("/category/:category",productControllers.getProductsByCategory); 
+
+
 
 export default router;

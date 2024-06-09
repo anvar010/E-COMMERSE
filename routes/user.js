@@ -13,6 +13,9 @@ router.put("/update", protect, userControllers.updateUserProfile);
  router.post("/add-to-wishlist", protect, userControllers.addToWishlist);
 router.post("/remove-wishlist", userControllers.removeFromWishlist);
 router.get("/get-wishlist", userControllers.getWishlist);
+router.delete('/remove-wishlist/:userId/:productId', userControllers.removeSingleWishlistItem);
+router.put("/switch-user/:userId", protect, userControllers.switchUserType); 
+
 
 
 export default router;

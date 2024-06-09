@@ -412,6 +412,93 @@ export const getWishlist = async (req, res) => {
     }
 };
 
+const removeSingleWishlistItem = async (req, res) => {
+    try {
+        const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized - No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: 'Unauthorized - Token invalid' });
+        }
+
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+
+        if (!userId || !productId) {
+            return res.status(400).json({ error: 'Invalid userId or productId' });
+        }
+
+        const user = await User.findById(userId);
+        console.log('User:', user);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.wishlist = user.wishlist.filter(
+            (item) => item.product.toString() !== productId
+        );
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Product removed from wishlist successfully",
+            success: true,
+            wishlist: user.wishlist,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+const switchUserType = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Assuming userId is passed in the URL parameters
+
+        if (!userId) {
+            return res.status(400).json({ error: 'Invalid userId' });
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.type = user.type === 'buyer' ? 'seller' : 'buyer';
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'User type updated successfully',
+            success: true,
+            data: {
+                user,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+
+
+
+
+
 
 
 
@@ -428,5 +515,7 @@ export default { registerController,
     getDropdownOptions,
     addToWishlist,
     removeFromWishlist,
-    getWishlist
+    getWishlist,
+    removeSingleWishlistItem,
+    switchUserType
      };

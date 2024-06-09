@@ -2,39 +2,58 @@ import Product from "../model/Product.js";
 
 const createProduct = async (req, res) => {
     try {
-        console.log(req.body);
-        const { name, price, description, category, location, stock, productImage } = req.body;
-        const userId = req.userId;  
-       
-
-        
-        if (!productImage) {
-            return res.status(400).json({
-                error: "Product image is required",
-                success: false
-            });
-        }
-
-        const newProduct = new Product({
-            name,
-            price,
-            description,
-            category,
-            location,
-            stock,
-            productImage,
-            userId
+      const { name, price, description, category, location, stock, productImages } = req.body;
+      const userId = req.userId;
+  
+      if (!productImages || !productImages.length) {
+        return res.status(400).json({
+          error: "Product images are required",
+          success: false
         });
+      }
+  
+      const newProduct = new Product({
+        name,
+        price,
+        description,
+        category,
+        location,
+        stock,
+        productImages,
+        userId
+      });
+  
+      const saveProduct = await newProduct.save(); // Await the save operation
+      res.status(200).json({
+        message: "Product successfully added",
+        success: true,
+        data: {
+          product: saveProduct
+        }
+      });
+  
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: "Internal server error",
+        success: false
+      });
+    }
+  };
+  
+  
 
-        const saveProduct = await newProduct.save(); // Await the save operation
+  const getAllProduct = async (req, res) => {
+    try {
+        const productItems = await Product.find();
+       
         res.status(200).json({
-            message: "Product successfully added",
+            message: "All products successfully fetched",
             success: true,
             data: {
-                product: saveProduct
+                product: productItems
             }
         });
-
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -44,40 +63,6 @@ const createProduct = async (req, res) => {
     }
 };
 
-const getAllProduct = async (req,res) =>{
-    try {
-        const {category} = req.query;
-        if(category === "all"){
-            const productItems = await Product.find()
-       
-            res.status(200).json({
-                message:"product successfully added",
-                success:true,
-                data:{
-                    product:productItems
-                }
-            })
-        }else{
-            const productItems = await Product.find({category:category})
-       
-            res.status(200).json({
-                message:"food successfully added",
-                success:true,
-                data:{
-                    product:productItems
-                }
-            })
-        }
-      
-        
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            error:"Internal server error",
-            success:false
-        })
-    }
-}
 const getNewProducts = async (req,res) =>{
     try {
         const productItems = await Product.find().sort({createdAt:-1}).limit(12)
@@ -102,7 +87,7 @@ const getNewProducts = async (req,res) =>{
         })
     }
 }
-const getProductsFromDistinctCategory = async (req,res) =>{
+const SpecialProducts = async (req,res) =>{
     try {
         const distinctCategory = await Product.distinct("category");
         const distinctproduct = await Promise.all(
@@ -185,11 +170,11 @@ const getProductById = async (req,res) =>{
 const editProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, price, description, category, location, stock, productImage } = req.body;
+        const { name, price, description, category, location, stock, productImages } = req.body;
 
-        if (!productImage) {
+        if (!productImages || !productImages.length) {
             return res.status(400).json({
-                error: "Product image is required",
+                error: "Product images are required",
                 success: false
             });
         }
@@ -203,9 +188,9 @@ const editProduct = async (req, res) => {
                 category,
                 location,
                 stock,
-                productImage
+                productImages
             },
-            { new: true } 
+            { new: true }
         );
 
         if (!updatedProduct) {
@@ -233,6 +218,7 @@ const editProduct = async (req, res) => {
 };
 
 
+
 const getProductsByUserId = async (req, res) => {
     try {
         const userId = req.userId;
@@ -254,6 +240,30 @@ const getProductsByUserId = async (req, res) => {
     }
 }
 
+const getProductsByCategory = async (req, res) => {
+    try {
+        const { category } = req.params; // Assuming category is passed as a parameter in the URL
+        const productItems = await Product.find({ category });
+
+        res.status(200).json({
+            message: `Products in category ${category} successfully fetched`,
+            success: true,
+            data: {
+                products: productItems
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+}
+
+
+
+
   
 
 
@@ -266,7 +276,9 @@ const getProductsByUserId = async (req, res) => {
 export default { createProduct,
      getAllProduct,getProductById ,
      getNewProducts,
-     getProductsFromDistinctCategory,
+     SpecialProducts,
      getTopRating,
      editProduct,
-     getProductsByUserId, };
+     getProductsByUserId,
+     getProductsByCategory,
+      };

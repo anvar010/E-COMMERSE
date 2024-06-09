@@ -106,7 +106,6 @@ export const addItemToCart = async (req, res) => {
         console.log('User ID:', userId);
         console.log('Product ID:', productId);
 
-        // Remove the item from the user's cart
         const user = await User.findByIdAndUpdate(userId, {
             $pull: { cart: { product: productId } },
         });
@@ -139,9 +138,8 @@ export const decreaseCartItemQuantity = async (req, res) => {
         }
 
         if (cartItem.quantity > 1) {
-            cartItem.quantity--; // Decrease quantity by 1
+            cartItem.quantity--; 
         } else {
-            // Optionally, you can remove the item from the cart if the quantity becomes 0
             user.cart = user.cart.filter(item => item.product.toString() !== productId);
         }
 

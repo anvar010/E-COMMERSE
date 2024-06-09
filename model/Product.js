@@ -51,10 +51,10 @@ const ProductSchema = new mongoose.Schema({
         required:true,
     },
     reviews:[ReviewSchema],
-   productImage: {
-    type: String,
-    required: true
-  },
+    productImages: [
+        { type: String, 
+        required: true }
+    ],
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 
 

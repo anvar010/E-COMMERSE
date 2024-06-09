@@ -5,7 +5,7 @@ import imageRoute from "./routes/image.js";
 import userRoute from "./routes/user.js";
 import productRoute from "./routes/product.js"
 import cartRoute from "./routes/cart.js"
-
+import orderRoute from "./routes/order.js";
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.use("/api/v1/all",imageRoute)
 app.use("/api/v1/user",userRoute)
 app.use("/api/v1/product",productRoute)
 app.use("/api/v1/cart", cartRoute);
+app.use("/api/v1/order", orderRoute);
 
 
 app.listen(port,()=>{
