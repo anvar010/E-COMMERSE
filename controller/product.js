@@ -260,6 +260,30 @@ const getProductsByCategory = async (req, res) => {
         });
     }
 }
+//Not show the Outof Stock product
+// const getProductsByCategory = async (req, res) => {
+//     try {
+//         const { category } = req.params; // Assuming category is passed as a parameter in the URL
+//         const productItems = await Product.find({ category });
+
+//         // Filter out products that have stock less than or equal to 0
+//         const availableProducts = productItems.filter(product => product.stock > 0);
+
+//         res.status(200).json({
+//             message: `Products in category ${category} successfully fetched`,
+//             success: true,
+//             data: {
+//                 products: availableProducts
+//             }
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({
+//             error: "Internal server error",
+//             success: false
+//         });
+//     }
+// }
 
 
 

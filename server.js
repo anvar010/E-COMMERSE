@@ -15,7 +15,7 @@ const port = process.env.PORT || 8000
 
 app.use(cors());
 app.get("/",(req,res)=>{
-    res.send("hello")
+    res.send("Test Api")
 })
 
 
@@ -39,5 +39,5 @@ app.use("/api/v1/order", orderRoute);
 
 app.listen(port,()=>{
     connect();
-    console.log(`listening from ${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 })
