@@ -285,6 +285,146 @@ const getProductsByCategory = async (req, res) => {
 //     }
 // }
 
+const addProductReview = async (req, res) => {
+    try {
+        const { id } = req.params; // Product ID
+        const { rating, comment } = req.body;
+        const userId = req.userId; 
+
+       
+        console.log("userId:", userId);
+
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({
+                error: "Product not found",
+                success: false
+            });
+        }
+
+        const newReview = {
+            user: userId,
+            rating,
+            comment
+        };
+
+       
+        product.reviews.push(newReview);
+
+        
+        const totalReviews = product.reviews.length;
+        let sumRatings = 0;
+        for (const review of product.reviews) {
+            sumRatings += review.rating;
+        }
+        const averageRating = sumRatings / totalReviews;
+
+        product.rating = averageRating;
+
+        await product.save();
+
+        res.status(201).json({
+            message: "Review added successfully",
+            success: true,
+            data: {
+                review: newReview
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+};
+
+
+const getProductReviews = async (req, res) => {
+    try {
+        const { id } = req.params; // Product ID
+
+        // Find the product by ID
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({
+                error: "Product not found",
+                success: false
+            });
+        }
+
+        // Return reviews for the product
+        res.status(200).json({
+            message: "Product reviews fetched successfully",
+            success: true,
+            data: {
+                reviews: product.reviews
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+};
+
+const getProductByName = async (req, res) => {
+    try {
+      const { productName } = req.params;
+  
+      if (!productName) {
+        return res.status(400).json({
+          error: "Product name parameter is required",
+          success: false
+        });
+      }
+  
+      // Perform case-insensitive search for products matching the productName in name or category
+      const productItems = await Product.find({
+        $or: [
+          { name: { $regex: new RegExp(productName, 'i') } },
+          { category: { $regex: new RegExp(productName, 'i') } }
+        ]
+      });
+  
+      if (productItems.length === 0) {
+        return res.status(404).json({
+          message: `No products found with name or category matching '${productName}'`,
+          success: true,
+          data: {
+            products: []
+          }
+        });
+      }
+  
+      res.status(200).json({
+        message: `Products with name or category matching '${productName}' successfully fetched`,
+        success: true,
+        data: {
+          products: productItems
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: "Internal server error",
+        success: false
+      });
+    }
+  };
+  
+  
+
+
+
+
+
+
+
 
 
 
@@ -305,4 +445,7 @@ export default { createProduct,
      editProduct,
      getProductsByUserId,
      getProductsByCategory,
+     addProductReview,
+     getProductReviews,
+     getProductByName
       };
