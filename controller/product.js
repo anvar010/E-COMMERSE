@@ -1,4 +1,5 @@
 import Product from "../model/Product.js";
+import jwt from 'jsonwebtoken';
 
 const createProduct = async (req, res) => {
     try {
@@ -285,13 +286,25 @@ const getProductsByCategory = async (req, res) => {
 //     }
 // }
 
-const addProductReview = async (req, res) => {
+export const addProductReview = async (req, res) => {
     try {
+        // Extract the token from the Authorization header
+        const authorizationHeader = req.headers.authorization;
+        if (!authorizationHeader) {
+            return res.status(401).json({
+                error: "Authorization header is missing",
+                success: false
+            });
+        }
+
+        const token = authorizationHeader.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decodedToken.id;
+
         const { id } = req.params; // Product ID
         const { rating, comment } = req.body;
-        const userId = req.userId; 
+        const userId = req.userId;
 
-       
         console.log("userId:", userId);
 
         const product = await Product.findById(id);
@@ -308,10 +321,10 @@ const addProductReview = async (req, res) => {
             comment
         };
 
-       
+        // Add the new review to the product's reviews array
         product.reviews.push(newReview);
 
-        
+        // Calculate the new average rating
         const totalReviews = product.reviews.length;
         let sumRatings = 0;
         for (const review of product.reviews) {

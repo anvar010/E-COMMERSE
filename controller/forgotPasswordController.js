@@ -1,9 +1,33 @@
 import nodemailer from 'nodemailer';
+import nodemailerExpressHandlebars from 'nodemailer-express-handlebars';
+import path from 'path';
 import crypto from 'crypto';
 import User from '../model/User.js'; // Adjust the path as necessary
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+// Create Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT || 1025, // Use port 1025 if not specified
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// Set up Handlebars as template engine
+transporter.use('compile', nodemailerExpressHandlebars({
+    viewEngine: {
+        extName: '.hbs',
+        partialsDir: path.resolve('./templates/'),
+        layoutsDir: path.resolve('./templates/'),
+        defaultLayout: 'resetPasswordEmail.hbs', // Default template file
+    },
+    viewPath: path.resolve('./templates/'),
+    extName: '.hbs',
+}));
 
 const forgotPasswordController = async (req, res) => {
     try {
@@ -29,31 +53,20 @@ const forgotPasswordController = async (req, res) => {
         await user.save();
 
         // Construct reset URL
-        const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/user/passwordreset/${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-        // Email message content
-        const message = `You are receiving this email because you (or someone else) have requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
-
-        // Create Nodemailer transporter
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: process.env.EMAIL_PORT || 1025, // Use port 1025 if not specified
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
-        // Email options
-        const mailOptions = {
+        // Send email
+        const info = await transporter.sendMail({
             to: email,
             from: process.env.EMAIL_USER,
             subject: "Password Reset Request",
-            text: message
-        };
+            template: 'resetPasswordEmail', // Template file name without extension
+            context: {
+                resetUrl: resetUrl
+            }
+        });
 
-        // Send email
-        await transporter.sendMail(mailOptions);
+        console.log('Email sent: ', info.messageId);
 
         // Send response indicating email was sent successfully
         res.status(200).send({
@@ -62,7 +75,7 @@ const forgotPasswordController = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error('Error sending email:', error);
         res.status(500).send({
             message: "Server error",
             success: false

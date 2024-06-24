@@ -494,6 +494,25 @@ const switchUserType = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+      const users = await User.find();
+      return res.status(200).json({
+        message: "All users retrieved successfully",
+        success: true,
+        data: {
+          users,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: "Internal server error",
+        success: false,
+      });
+    }
+  };
+
 
 
 
@@ -517,5 +536,6 @@ export default { registerController,
     removeFromWishlist,
     getWishlist,
     removeSingleWishlistItem,
-    switchUserType
+    switchUserType,
+    getAllUsers
      };

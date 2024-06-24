@@ -24,6 +24,8 @@ router.post('/forgotpassword', forgotPasswordController);
 
 router.put('/passwordreset/:token', resetPasswordController);
 
+router.get("/alluser", userControllers.getAllUsers); 
+
 
 
 export default router;
