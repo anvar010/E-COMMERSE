@@ -1,6 +1,8 @@
 import express from "express";
 import userControllers from "../controller/user.js"; 
 import protect from "../middleware/authMiddleware.js";
+import forgotPasswordController from '../controller/forgotPasswordController.js';
+import resetPasswordController from '../controller/resetPasswordController.js';
 
 const router = express.Router();
 
@@ -15,6 +17,12 @@ router.post("/remove-wishlist", userControllers.removeFromWishlist);
 router.get("/get-wishlist", userControllers.getWishlist);
 router.delete('/remove-wishlist/:userId/:productId', userControllers.removeSingleWishlistItem);
 router.put("/switch-user/:userId", protect, userControllers.switchUserType); 
+
+
+router.post('/forgotpassword', forgotPasswordController);
+
+
+router.put('/passwordreset/:token', resetPasswordController);
 
 
 

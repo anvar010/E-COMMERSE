@@ -1,94 +1,72 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt"
-import validator from "validator";
+import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+    select: false, // Do not include in query results by default
+  },
+  passwordConfirm: {
+    type: String,
+    required: true,
+    minlength: 8,
+    select: false,
+  },
+  street: {
+    type: String,
+    required: false,
+  },
+  city: {
+    type: String,
+    required: false,
+  },
+  state: {
+    type: String,
+    required: false,
+  },
+  zipCode: {
+    type: String,
+    required: false,
+  },
+  country: {
+    type: String,
+    required: false,
+  },
+  cart: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+      quantity: { type: Number, default: 0 },
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
-        validate:[validator.isEmail, "Please provide email"]
-    },
-    password:{
-        type:String,
-        required:true,
-        minlength:8,
-        select:false,
-     },
-     passwordConfirm:{
-        type:String,
-        required:true,
-        minlength:8,
-        select:false,
-        validate:{
-            validator:function(el){
-                return el === this.password
-            },
-            message:"Password are not match"
-        },
-     },
-     street:{
-        type:String,
-        required:false
-     },
-     city:{
-        type:String,
-        required:false
-     },
-     state:{
-        type:String,
-        required:false
-     },
-     zipCode:{
-        type:String,
-        required:false
-     },
-     country:{
-        type:String,
-        required:false
-     },
-    //  isVerified:{
-    //     type:Boolean,
-    //     default:false,
-    //     select:false
-    //  },
-    //  otp:{
-    //     type:Number,
-    //  },
-    //  role:{
-    //     type:String,
-    //     enum:["user","admin"],
-    //     default:"user"
-    //  },
-    cart: [
-      {
-        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-        quantity: { type: Number, default: 0 },
-      },
-    ],
-    wishlist: [
-      {
-          product: {  type: mongoose.Schema.Types.ObjectId, ref: 'Product' }
-      }
   ],
-    type: {
-        type: String,
-        required: true,
-        unique: false
+  wishlist: [
+    {
+      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     },
-     profileImage:{
-        type:String,
-        required:true,
-       default: 'default_profile_image.jpg'
-     },
-
+  ],
+  type: {
+    type: String,
+    required: true,
+  },
+  profileImage: {
+    type: String,
+    required: true,
+    default: 'default_profile_image.jpg',
+  },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
 },
 {
-   timestamps:true,
-}
-)
-export default mongoose.model.Users || mongoose.model("User", UserSchema);
+  timestamps: true,
+});
+
+export default mongoose.models.User || mongoose.model('User', UserSchema);
