@@ -1,1 +1,4 @@
 .env
+/adminSeeder/
+admin.js
+model/Admin.js
