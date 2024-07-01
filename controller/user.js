@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../model/User.js";
 import Product from "../model/Product.js";
+import mongoose from 'mongoose';
 
 const registerController = async (req,res) =>{
     try {
@@ -12,61 +13,61 @@ const registerController = async (req,res) =>{
                 success:false,
             });
         }
-        const addToCart = async (req, res) => {
-            try {
-              const userId = req.user.id;
-              const productId = req.body.productId;
-              const quantity = req.body.quantity || 1;
+        // const addToCart = async (req, res) => {
+        //     try {
+        //       const userId = req.user.id;
+        //       const productId = req.body.productId;
+        //       const quantity = req.body.quantity || 1;
           
-              const user = await User.findById(userId);
+        //       const user = await User.findById(userId);
           
-              // Check if the product is already in the user's cart
-              const existingCartItem = user.cart.find((item) => item.product.toString() === productId);
+        //       // Check if the product is already in the user's cart
+        //       const existingCartItem = user.cart.find((item) => item.product.toString() === productId);
           
-              if (existingCartItem) {
-                existingCartItem.quantity += quantity;
-              } else {
-                user.cart.push({ product: productId, quantity });
-              }
+        //       if (existingCartItem) {
+        //         existingCartItem.quantity += quantity;
+        //       } else {
+        //         user.cart.push({ product: productId, quantity });
+        //       }
           
-              await user.save();
+        //       await user.save();
           
-              res.status(200).json({
-                message: 'Product added to cart successfully',
-                success: true,
-                data: {
-                  user,
-                },
-              });
-            } catch (error) {
-              console.error(error);
-              res.status(500).json({
-                error: 'Internal server error',
-                success: false,
-              });
-            }
-          };
+        //       res.status(200).json({
+        //         message: 'Product added to cart successfully',
+        //         success: true,
+        //         data: {
+        //           user,
+        //         },
+        //       });
+        //     } catch (error) {
+        //       console.error(error);
+        //       res.status(500).json({
+        //         error: 'Internal server error',
+        //         success: false,
+        //       });
+        //     }
+        //   };
           
-          const getCart = async (req, res) => {
-            try {
-              const userId = req.user.id;
-              const user = await User.findById(userId).populate('cart.product');
+        //   const getCart = async (req, res) => {
+        //     try {
+        //       const userId = req.user.id;
+        //       const user = await User.findById(userId).populate('cart.product');
           
-              res.status(200).json({
-                message: 'User cart retrieved successfully',
-                success: true,
-                data: {
-                  cart: user.cart,
-                },
-              });
-            } catch (error) {
-              console.error(error);
-              res.status(500).json({
-                error: 'Internal server error',
-                success: false,
-              });
-            }
-          };
+        //       res.status(200).json({
+        //         message: 'User cart retrieved successfully',
+        //         success: true,
+        //         data: {
+        //           cart: user.cart,
+        //         },
+        //       });
+        //     } catch (error) {
+        //       console.error(error);
+        //       res.status(500).json({
+        //         error: 'Internal server error',
+        //         success: false,
+        //       });
+        //     }
+        //   };
           
         const password = req.body.password;
         const salt = await bcrypt.genSalt(10);
@@ -323,6 +324,78 @@ export const addToWishlist = async (req, res) => {
     }
 };
 
+
+const moveToCart = async (req, res) => {
+    try {
+        const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
+        if (!token) {
+            return res.status(401).json({ error: 'Unauthorized - No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        if (!decoded || !decoded.id) {
+            return res.status(401).json({ error: 'Unauthorized - Token invalid' });
+        }
+
+        const userId = decoded.id;
+        const productId = req.body.productId;
+
+        if (!productId) {
+            return res.status(400).json({ error: 'Invalid productId' });
+        }
+
+        const user = await User.findById(userId);
+        console.log('User:', user);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Find the wishlisted item
+        const wishlistedItem = user.wishlist.find(item => item.product.toString() === productId);
+
+        if (!wishlistedItem) {
+            return res.status(404).json({ error: 'Product not found in wishlist' });
+        }
+
+        // Add the product to the cart
+        const existingCartItem = user.cart.find(item => item.product.toString() === productId);
+
+        if (existingCartItem) {
+            existingCartItem.quantity += 1; // Increment quantity if already in cart
+        } else {
+            user.cart.push({ product: productId, quantity: 1 }); // Add to cart if not already there
+        }
+
+        // Remove the product from the wishlist
+        user.wishlist = user.wishlist.filter(item => item.product.toString() !== productId);
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Product moved to cart successfully',
+            success: true,
+            data: {
+                user,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Internal server error',
+            success: false,
+        });
+    }
+};
+
+
+
+
+
+
 export const removeFromWishlist = async (req, res) => {
     try {
         const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
@@ -497,11 +570,44 @@ const switchUserType = async (req, res) => {
 const getAllUsers = async (req, res) => {
     try {
       const users = await User.find();
+      const totalUsers = users.length; 
+  
       return res.status(200).json({
         message: "All users retrieved successfully",
         success: true,
         data: {
-          users,
+          totalUsers: totalUsers,
+          users: users,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: "Internal server error",
+        success: false,
+      });
+    }
+  };
+  
+
+  const getUserById = async (req, res) => {
+    try {
+      const userId = req.params.id; 
+  
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+          success: false,
+        });
+      }
+  
+      return res.status(200).json({
+        message: "User retrieved successfully",
+        success: true,
+        data: {
+          user: user,
         },
       });
     } catch (error) {
@@ -515,16 +621,6 @@ const getAllUsers = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
   
 
 export default { registerController,
@@ -533,9 +629,11 @@ export default { registerController,
     updateUserProfile,
     getDropdownOptions,
     addToWishlist,
+    moveToCart,
     removeFromWishlist,
     getWishlist,
     removeSingleWishlistItem,
     switchUserType,
-    getAllUsers
+    getAllUsers,
+    getUserById
      };

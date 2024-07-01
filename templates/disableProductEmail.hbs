@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Disabled Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        strong {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Product Disabled Notification</h2>
+        <p>Dear {{ ownerName }},</p>
+        <p>Your product "{{ productName }}" has been temporarily disabled.</p>
+        <p><strong>Reason:</strong> {{ disableReason }}</p>
+        <p>If you have any questions or concerns, please contact our support team.</p>
+        <div class="footer">
+            <p>Regards,</p>
+            <p>Your E-commerce Team</p>
+        </div>
+    </div>
+</body>
+</html>

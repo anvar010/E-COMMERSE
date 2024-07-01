@@ -24,7 +24,10 @@ router.post('/forgotpassword', forgotPasswordController);
 
 router.put('/passwordreset/:token', resetPasswordController);
 
-router.get("/alluser", userControllers.getAllUsers); 
+router.get("/alluser",protect, userControllers.getAllUsers); 
+router.get("/:id", userControllers.getUserById); 
+router.post("/movetoCart",protect , userControllers.moveToCart); 
+
 
 
 

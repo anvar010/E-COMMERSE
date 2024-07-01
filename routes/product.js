@@ -17,6 +17,7 @@ router.get("/category/:category",productControllers.getProductsByCategory);
 router.post('/:id/reviews',productControllers.addProductReview); 
 router.get('/:id/reviews',productControllers.getProductReviews); 
 router.get('/:productName',productControllers.getProductByName); 
+router.get('/sellerProducts/:id',productControllers.getProductsBySeller); 
 
 
 

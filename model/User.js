@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
-    select: false, // Do not include in query results by default
+    select: false, 
   },
   passwordConfirm: {
     type: String,

@@ -24,7 +24,7 @@ const createProduct = async (req, res) => {
         userId
       });
   
-      const saveProduct = await newProduct.save(); // Await the save operation
+      const saveProduct = await newProduct.save(); 
       res.status(200).json({
         message: "Product successfully added",
         success: true,
@@ -41,18 +41,22 @@ const createProduct = async (req, res) => {
       });
     }
   };
+
+ 
   
   
 
   const getAllProduct = async (req, res) => {
     try {
         const productItems = await Product.find();
-       
+        const productCount = await Product.countDocuments(); // Get the total count of products
+
         res.status(200).json({
             message: "All products successfully fetched",
             success: true,
             data: {
-                product: productItems
+                product: productItems,
+                totalProducts: productCount // Include total product count in the response
             }
         });
     } catch (error) {
@@ -63,6 +67,7 @@ const createProduct = async (req, res) => {
         });
     }
 };
+
 
 const getNewProducts = async (req,res) =>{
     try {
@@ -239,7 +244,29 @@ const getProductsByUserId = async (req, res) => {
             success: false
         });
     }
+
 }
+
+const getProductsBySeller = async (req, res) => {
+    try {
+        const { id } = req.params; // Assuming 'id' corresponds to 'userId' in your case
+        const productItems = await Product.find({ userId: id });
+
+        res.status(200).json({
+            message: "Products added by the user",
+            success: true,
+            data: {
+                products: productItems
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error: "Internal server error",
+            success: false
+        });
+    }
+};
 
 const getProductsByCategory = async (req, res) => {
     try {
@@ -457,8 +484,10 @@ export default { createProduct,
      getTopRating,
      editProduct,
      getProductsByUserId,
+     getProductsBySeller,
      getProductsByCategory,
      addProductReview,
      getProductReviews,
-     getProductByName
+     getProductByName,
+
       };
